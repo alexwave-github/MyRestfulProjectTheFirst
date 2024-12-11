@@ -8,7 +8,8 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Date;
 
-@Data
+// FIXME добавь миграцию БД liquibase или flyway
+@Data // FIXME @EqualsAndHashCode у entity сделай только по id
 @Entity
 @Table(name = "papers")
 public class Paper {

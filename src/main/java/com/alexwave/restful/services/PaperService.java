@@ -10,14 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+// FIXME add integration and unit tests
+
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true) // FIXME readOnly = true?
 public class PaperService {
 
     private final PaperRepository paperRepository;
 
     @Autowired
-    public PaperService(PaperRepository myRepository) {
+    public PaperService(PaperRepository myRepository) { // FIXME use lombok @RequiredArgsConstructor
         this.paperRepository = myRepository;
     }
 //---------------------------------------------------Service's methods--------------------------------------------------

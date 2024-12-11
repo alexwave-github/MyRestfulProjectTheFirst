@@ -1,6 +1,6 @@
 package com.alexwave.restful.controllers;
 
-import com.alexwave.restful.dto.AuthorDTO;
+import com.alexwave.restful.dto.AuthorDTO; // FIXME remove unused import
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.models.Author;
 import com.alexwave.restful.models.Paper;
@@ -15,15 +15,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+// FIXME add integration and unit tests
+// FIXME add GlobalControllerAdvice
 @RestController
-@RequestMapping("/")
+@RequestMapping("/") // FIXME подумай над путями в этом контроллере
 public class PaperController {
 
     private final PaperService paperService;
     private final AuthorService authorService;
 
     @Autowired
-    public PaperController(PaperService myService, AuthorService authorService) {
+    public PaperController(PaperService myService, AuthorService authorService) { // FIXME use lombok @RequiredArgsConstructor
         this.paperService = myService;
         this.authorService = authorService;
     }
@@ -76,7 +78,7 @@ public class PaperController {
         return new ResponseEntity<>("Paper with id " + id + " deleted", HttpStatus.OK);
     }
 
-    private Paper convertToPaper(PaperDTO paperDTO) {
+    private Paper convertToPaper(PaperDTO paperDTO) { // FIXME используй mapstruct и проверь новый конвертер через тесты
         Paper paper = new Paper();
         paper.setTitle(paperDTO.getTitle());
         paper.setContent(paperDTO.getContent());

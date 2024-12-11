@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+// FIXME add integration and unit tests
+
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true) // FIXME readOnly = true?
 public class AuthorService {
 
     private final AuthorRepository authorsRepository;
@@ -18,7 +20,7 @@ public class AuthorService {
     @Autowired
     public AuthorService(AuthorRepository authorsRepository) {
         this.authorsRepository = authorsRepository;
-    }
+    } // FIXME use lombok @RequiredArgsConstructor
 //---------------------------------------------------Service's methods--------------------------------------------------
     public List<Author> findAll() {
         return authorsRepository.findAll();

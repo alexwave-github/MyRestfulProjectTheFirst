@@ -6,8 +6,8 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
-
-@Data
+// FIXME добавь миграцию БД liquibase или flyway
+@Data // FIXME @EqualsAndHashCode у entity сделай только по id
 @Entity
 @Table(name = "authors")
 public class Author {

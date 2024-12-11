@@ -2,25 +2,28 @@ package com.alexwave.restful.controllers;
 
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.models.Author;
-import com.alexwave.restful.models.Paper;
+import com.alexwave.restful.models.Paper; // FIXME
 import com.alexwave.restful.services.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.validation.BindingResult; // FIXME
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+// FIXME add integration and/or unit tests
+// FIXME add GlobalControllerAdvice
+
 @RestController
-@RequestMapping("/")
+@RequestMapping("/") // FIXME может перенести сюда "/authors"?
 public class AuthorController {
 
     private final AuthorService authorService;
 
     @Autowired
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService) { // FIXME use lombok @RequiredArgsConstructor
         this.authorService = authorService;
     }
 
@@ -38,7 +41,7 @@ public class AuthorController {
     public ResponseEntity<Author> getAuthorById(@PathVariable(value = "id") int id) {
         Author author = authorService.findById(id);
         if (author == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // FIXME может NOT_FOUND?
         } else {
             return new ResponseEntity<>(author, HttpStatus.OK);
         }
@@ -76,7 +79,7 @@ public class AuthorController {
 //        return authorService.removePaper(authorId, paperId);
 //    }
 
-    private Author convertToAuthor(AuthorDTO authorDTO) {
+    private Author convertToAuthor(AuthorDTO authorDTO) { // FIXME используй mapstruct и проверь новый конвертер через тесты
         Author author = new Author();
         author.setName(authorDTO.getName());
         return author;
