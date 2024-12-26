@@ -1,15 +1,15 @@
 package com.alexwave.restful.controllers;
 
-import com.alexwave.restful.dto.AuthorDTO; // FIXME remove unused import
+import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.models.Author;
 import com.alexwave.restful.models.Paper;
 import com.alexwave.restful.services.AuthorService;
 import com.alexwave.restful.services.PaperService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.alexwave.restful.util.exception_handling.IdNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,72 +18,55 @@ import java.util.Optional;
 // FIXME add integration and unit tests
 // FIXME add GlobalControllerAdvice
 @RestController
-@RequestMapping("/") // FIXME подумай над путями в этом контроллере
+@RequiredArgsConstructor
+@RequestMapping("/papers")
 public class PaperController {
 
     private final PaperService paperService;
     private final AuthorService authorService;
 
-    @Autowired
-    public PaperController(PaperService myService, AuthorService authorService) { // FIXME use lombok @RequiredArgsConstructor
-        this.paperService = myService;
-        this.authorService = authorService;
+
+    @GetMapping
+    public ResponseEntity<List<PaperDTO>> getAllPapers() {
+        List<PaperDTO> papers = paperService.findAll();
+
+        return new ResponseEntity<>(papers, HttpStatus.OK);
     }
 
-    @GetMapping("/authors/{authorId}/papers")
-    public ResponseEntity<List<Paper>> getPapersByAuthorId(@PathVariable(value = "authorId") int authorId) {
-        List<Paper> papers = paperService.findAll(authorId);
-        if (papers.isEmpty()) {
-            return new ResponseEntity<>(papers, HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(papers, HttpStatus.OK);
-        }
+    @GetMapping("/author/{authorId}")
+    public ResponseEntity<List<PaperDTO>> getPapersByAuthorId(@PathVariable(value = "authorId") int authorId) {
+        List<PaperDTO> papersOfTheAuthor = paperService.findAllByAuthorId(authorId);
+
+        return new ResponseEntity<>(papersOfTheAuthor, HttpStatus.OK);
     }
 
-    @GetMapping("/papers/{id}")
-    public ResponseEntity<Paper> getPaperById(@PathVariable(value = "id") int id) {
-        Paper paper = paperService.findById(id);
-        if (paper == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(paper, HttpStatus.OK);
-        }
+    @GetMapping("/{id}")
+    public ResponseEntity<PaperDTO> getPaperById(@PathVariable(value = "id") int id) {
+        PaperDTO paper = paperService.findById(id);
+
+        return new ResponseEntity<>(paper, HttpStatus.OK);
     }
 
-    @PostMapping("/authors/{authorId}/papers")
-    public ResponseEntity<Paper> createPaper(@RequestBody PaperDTO paperDTO, @PathVariable(value = "authorId") int authorId) {
-        Author author = authorService.findById(authorId);
-        if (author == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        Paper paper = convertToPaper(paperDTO);
-        paper.setAuthor(author);
-        paperService.save(paper);
-        return new ResponseEntity<>(paper, HttpStatus.CREATED);
+    @PostMapping("/author/{authorId}")
+    public ResponseEntity<PaperDTO> createPaper(@RequestBody Paper paper, @PathVariable(value = "authorId") int authorId) {
+        AuthorDTO authorDTO = authorService.findById(authorId);
+        PaperDTO paperDTO = paperService.save(paper);
+        paperDTO.setAuthor(authorDTO);
+
+        return new ResponseEntity<>(paperDTO, HttpStatus.CREATED);
     }
 
-    @PutMapping("/papers/{id}")
-    public ResponseEntity<Paper> updatePaper(@PathVariable(value = "id") int id, @RequestBody PaperDTO paperDTO) {
-        Paper paper = paperService.update(id,convertToPaper(paperDTO));
-        if (paper == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(paper, HttpStatus.OK);
-        }
+    @PutMapping("/{id}")
+    public ResponseEntity<PaperDTO> updatePaper(@PathVariable(value = "id") int id, @RequestBody Paper paper) {
+        PaperDTO updatedPaper = paperService.update(id,paper);
+
+        return new ResponseEntity<>(updatedPaper, HttpStatus.OK);
     }
 
-    @DeleteMapping("/papers/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePaper(@PathVariable(value = "id") int id) {
         paperService.deleteById(id);
         return new ResponseEntity<>("Paper with id " + id + " deleted", HttpStatus.OK);
-    }
-
-    private Paper convertToPaper(PaperDTO paperDTO) { // FIXME используй mapstruct и проверь новый конвертер через тесты
-        Paper paper = new Paper();
-        paper.setTitle(paperDTO.getTitle());
-        paper.setContent(paperDTO.getContent());
-        paper.setDateForPublishing(paperDTO.getDateForPublishing());
-        return paper;
     }
 
 }

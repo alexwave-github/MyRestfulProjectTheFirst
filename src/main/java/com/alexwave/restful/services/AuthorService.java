@@ -1,8 +1,12 @@
 package com.alexwave.restful.services;
 
+import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.models.Author;
 import com.alexwave.restful.repositories.AuthorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.alexwave.restful.util.exception_handling.EmptyListException;
+import com.alexwave.restful.util.exception_handling.IdNotFoundException;
+import com.alexwave.restful.util.mapper.AuthorMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,39 +16,49 @@ import java.util.Optional;
 // FIXME add integration and unit tests
 
 @Service
-@Transactional(readOnly = true) // FIXME readOnly = true?
+@RequiredArgsConstructor
 public class AuthorService {
 
     private final AuthorRepository authorsRepository;
+    private final AuthorMapper authorMapper;
 
-    @Autowired
-    public AuthorService(AuthorRepository authorsRepository) {
-        this.authorsRepository = authorsRepository;
-    } // FIXME use lombok @RequiredArgsConstructor
-//---------------------------------------------------Service's methods--------------------------------------------------
-    public List<Author> findAll() {
-        return authorsRepository.findAll();
-    }
-
-    public Author findById(int id) {
-        Optional<Author> author = authorsRepository.findById(id);
-        return author.orElse(null);
-    }
-
-    @Transactional
-    public Author save(Author author) {
-        return authorsRepository.save(author);
-    }
-
-    @Transactional
-    public Author update(int id, Author author) {
-        Optional<Author> authorOptional = authorsRepository.findById(id);
-        if (authorOptional.isEmpty()) {
-            return null;
+    public List<AuthorDTO> findAll() {
+        List<Author> authors = authorsRepository.findAll();
+        List<AuthorDTO> authorDTOS = authorMapper.authorsToAuthorDTOs(authors);
+        if (authorDTOS.isEmpty()) {
+            throw new EmptyListException("Authors do not exist yet!");
         } else {
-            Author authorToUpdate = authorOptional.get();
-            authorToUpdate.setName(author.getName());
-            return authorsRepository.save(authorToUpdate);
+            return authorDTOS;
+        }
+    }
+
+    public AuthorDTO findById(int id) {
+        Optional<Author> author = authorsRepository.findById(id);
+        if (author.isPresent()) {
+            AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(author.get()); // оставил для наглядности
+            return authorDTO;
+        } else {
+            throw new IdNotFoundException("Author not found!");
+        }
+    }
+
+    @Transactional
+    public AuthorDTO save(Author author) {
+        authorsRepository.save(author);
+        AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(author); // оставил для наглядности
+
+        return authorDTO;
+    }
+
+    @Transactional
+    public AuthorDTO update(int id, Author author) {
+        AuthorDTO authorDTO = findById(id);
+        if (authorDTO == null) {
+            throw new IdNotFoundException("Author not found!");
+        } else {
+            authorDTO.setName(author.getName());
+            authorsRepository.save(author);
+            return authorDTO;
         }
     }
 
@@ -53,26 +67,4 @@ public class AuthorService {
         authorsRepository.deleteById(id);
     }
 
-//    @Transactional
-//    public Author addPaper(int id, Paper paper) {
-//        Author author = findById(id);
-//        if (author != null) {
-//            author.addPaper(paper);
-//            return author;
-//        }
-//        return null;
-//    }
-//
-//    @Transactional
-//    public Author removePaper(int authorId, int paperId) {
-//        Author author = findById(authorId);
-//        if (author != null) {
-//            Paper paper = author.getPapers().stream().filter(p -> p.getId() == paperId).findFirst().orElse(null);
-//            if (paper != null) {
-//                author.removePaper(paper);
-//                return save(author);
-//            }
-//        }
-//        return null;
-//    }
 }

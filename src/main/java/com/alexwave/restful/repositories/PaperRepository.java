@@ -10,8 +10,4 @@ import java.util.List;
 @Repository
 public interface PaperRepository extends JpaRepository<Paper, Integer> {
     List<Paper> findByAuthorId(int id);
-
-    @Transactional
-    void deleteByAuthorId(int id);
-    
 }

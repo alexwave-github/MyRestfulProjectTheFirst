@@ -1,59 +1,88 @@
 package com.alexwave.restful.services;
 
+import com.alexwave.restful.dto.AuthorDTO;
+import com.alexwave.restful.dto.PaperDTO;
+import com.alexwave.restful.models.Author;
 import com.alexwave.restful.models.Paper;
+import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.alexwave.restful.util.exception_handling.EmptyListException;
+import com.alexwave.restful.util.exception_handling.IdNotFoundException;
+import com.alexwave.restful.util.mapper.AuthorMapper;
+import com.alexwave.restful.util.mapper.PaperMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 // FIXME add integration and unit tests
 
 @Service
-@Transactional(readOnly = true) // FIXME readOnly = true?
+@RequiredArgsConstructor
 public class PaperService {
 
     private final PaperRepository paperRepository;
+    private final PaperMapper paperMapper;
+    private final AuthorRepository authorRepository;
+    private final AuthorMapper authorMapper;
 
-    @Autowired
-    public PaperService(PaperRepository myRepository) { // FIXME use lombok @RequiredArgsConstructor
-        this.paperRepository = myRepository;
-    }
-//---------------------------------------------------Service's methods--------------------------------------------------
-    public List<Paper> findAll(int id) {
-        List<Paper> papers = paperRepository.findByAuthorId(id);
-        if (papers.isEmpty()) {
-            return new ArrayList<>();
+    public List<PaperDTO> findAll() {
+        List<Paper> papers = paperRepository.findAll();
+        List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(papers);
+        if (paperDTOS.isEmpty()) {
+            throw new EmptyListException("Papers do not exist yet!");
         } else {
-            return papers;
+            return paperDTOS;
         }
-
     }
 
-    public Paper findById(int id) {
+    public List<PaperDTO> findAllByAuthorId(int id) {
+        Optional<Author> optionalAuthor = authorRepository.findById(id);
+        if (optionalAuthor.isPresent()) {
+            AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(optionalAuthor.get());
+            List<PaperDTO> paperDTOS = authorDTO.getPapers(); // для наглядности
+            if (paperDTOS.isEmpty()) {
+                throw new EmptyListException("Papers do not exist yet!");
+            } else {
+                return paperDTOS;
+            }
+        } else {
+            throw new IdNotFoundException("Author not found!");
+        }
+    }
+
+    public PaperDTO findById(int id) {
         Optional<Paper> paper = paperRepository.findById(id);
-        return paper.orElse(null);
+        if (paper.isPresent()) {
+            PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper.get()); // для наглядности
+            return paperDTO;
+        } else {
+            throw new IdNotFoundException("Paper not found!");
+        }
     }
 
     @Transactional
-    public void save(Paper paper) {
+    public PaperDTO save(Paper paper) {
         paperRepository.save(paper);
+        PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper); // для наглядности
+        return paperDTO;
     }
 
     @Transactional
-    public Paper update(int id, Paper paper) {
+    public PaperDTO update(int id, Paper paper) {
         Optional<Paper> optionalPaper = paperRepository.findById(id);
         if (optionalPaper.isEmpty()) {
-            return null;
+            throw new IdNotFoundException("Paper not found!");
         } else {
             Paper updatedPaper = optionalPaper.get();
             updatedPaper.setTitle(paper.getTitle());
             updatedPaper.setContent(updatedPaper.getContent());
             updatedPaper.setDateForPublishing(updatedPaper.getDateForPublishing());
-            return paperRepository.save(paper);
+            paperRepository.save(paper);
+            PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper);// для наглядности
+            return paperDTO;
         }
     }
 
