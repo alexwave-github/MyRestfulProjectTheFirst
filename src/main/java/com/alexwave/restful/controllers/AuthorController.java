@@ -3,7 +3,6 @@ package com.alexwave.restful.controllers;
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.models.Author;
 import com.alexwave.restful.services.AuthorService;
-import com.alexwave.restful.util.exception_handling.IdNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +53,4 @@ public class AuthorController {
 
         return new ResponseEntity<>("Author with id " + id + " was deleted", HttpStatus.OK);
     }
-
-
-
 }

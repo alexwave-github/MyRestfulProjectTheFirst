@@ -2,7 +2,6 @@ package com.alexwave.restful.util.mapper;
 
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.models.Author;
-import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
