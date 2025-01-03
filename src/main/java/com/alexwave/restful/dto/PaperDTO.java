@@ -1,7 +1,5 @@
 package com.alexwave.restful.dto;
 
-import com.alexwave.restful.models.Author;
-
 import com.alexwave.restful.util.instantConverter.CustomInstantDeSerializer;
 import com.alexwave.restful.util.instantConverter.CustomInstantSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

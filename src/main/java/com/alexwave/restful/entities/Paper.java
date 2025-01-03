@@ -1,4 +1,4 @@
-package com.alexwave.restful.models;
+package com.alexwave.restful.entities;
 
 import com.alexwave.restful.util.instantConverter.CustomInstantDeSerializer;
 import com.alexwave.restful.util.instantConverter.CustomInstantSerializer;

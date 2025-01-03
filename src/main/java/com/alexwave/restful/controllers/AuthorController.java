@@ -1,7 +1,7 @@
 package com.alexwave.restful.controllers;
 
 import com.alexwave.restful.dto.AuthorDTO;
-import com.alexwave.restful.models.Author;
+import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.services.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

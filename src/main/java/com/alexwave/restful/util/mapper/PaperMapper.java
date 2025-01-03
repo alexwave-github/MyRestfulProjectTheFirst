@@ -1,7 +1,7 @@
 package com.alexwave.restful.util.mapper;
 
 import com.alexwave.restful.dto.PaperDTO;
-import com.alexwave.restful.models.Paper;
+import com.alexwave.restful.entities.Paper;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 

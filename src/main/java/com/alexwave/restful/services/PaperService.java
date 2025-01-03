@@ -1,9 +1,8 @@
 package com.alexwave.restful.services;
 
-import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.dto.PaperDTO;
-import com.alexwave.restful.models.Author;
-import com.alexwave.restful.models.Paper;
+import com.alexwave.restful.entities.Author;
+import com.alexwave.restful.entities.Paper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
 import com.alexwave.restful.util.exception_handling.EmptyListException;
@@ -40,9 +39,10 @@ public class PaperService {
 
     public List<PaperDTO> findAllByAuthorId(int id) {
         Optional<Author> optionalAuthor = authorRepository.findById(id);
+
         if (optionalAuthor.isPresent()) {
-            AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(optionalAuthor.get());
-            List<PaperDTO> paperDTOS = authorDTO.getPapers(); // для наглядности
+            List<Paper> papers = optionalAuthor.get().getPapers();
+            List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(papers);
             if (paperDTOS.isEmpty()) {
                 throw new EmptyListException("Papers do not exist yet!");
             } else {
@@ -55,6 +55,7 @@ public class PaperService {
 
     public PaperDTO findById(int id) {
         Optional<Paper> paper = paperRepository.findById(id);
+
         if (paper.isPresent()) {
             PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper.get()); // для наглядности
             return paperDTO;

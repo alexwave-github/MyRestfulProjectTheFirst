@@ -1,10 +1,15 @@
 package com.alexwave.restful.util.exception_handling;
 
-public abstract class GlobalParentException extends RuntimeException {
+import org.springframework.http.HttpStatus;
 
+public abstract class GlobalParentException extends RuntimeException {
 
     public GlobalParentException(String message) {
         super(message);
+    }
+
+    HttpStatus getStatus() {
+        return HttpStatus.BAD_REQUEST;
     }
 
 }

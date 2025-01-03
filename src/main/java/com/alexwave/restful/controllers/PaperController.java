@@ -2,18 +2,15 @@ package com.alexwave.restful.controllers;
 
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.dto.PaperDTO;
-import com.alexwave.restful.models.Author;
-import com.alexwave.restful.models.Paper;
+import com.alexwave.restful.entities.Paper;
 import com.alexwave.restful.services.AuthorService;
 import com.alexwave.restful.services.PaperService;
-import com.alexwave.restful.util.exception_handling.IdNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 // FIXME add integration and unit tests
 // FIXME add GlobalControllerAdvice

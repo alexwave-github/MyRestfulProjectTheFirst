@@ -1,7 +1,7 @@
 package com.alexwave.restful.services;
 
 import com.alexwave.restful.dto.AuthorDTO;
-import com.alexwave.restful.models.Author;
+import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.util.exception_handling.EmptyListException;
 import com.alexwave.restful.util.exception_handling.IdNotFoundException;
@@ -23,11 +23,11 @@ public class AuthorService {
     private final AuthorMapper authorMapper;
 
     public List<AuthorDTO> findAll() {
-        List<Author> authors = authorsRepository.findAll();
-        List<AuthorDTO> authorDTOS = authorMapper.authorsToAuthorDTOs(authors);
+        List<AuthorDTO> authorDTOS = authorMapper.authorsToAuthorDTOs(authorsRepository.findAll());
         if (authorDTOS.isEmpty()) {
             throw new EmptyListException("Authors do not exist yet!");
         } else {
+
             return authorDTOS;
         }
     }

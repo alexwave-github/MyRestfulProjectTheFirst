@@ -1,7 +1,7 @@
 package com.alexwave.restful.util.mapper;
 
 import com.alexwave.restful.dto.AuthorDTO;
-import com.alexwave.restful.models.Author;
+import com.alexwave.restful.entities.Author;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 

@@ -1,4 +1,4 @@
-package com.alexwave.restful.models;
+package com.alexwave.restful.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

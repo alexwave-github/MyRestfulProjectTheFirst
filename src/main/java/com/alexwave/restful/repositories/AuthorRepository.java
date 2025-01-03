@@ -1,6 +1,6 @@
 package com.alexwave.restful.repositories;
 
-import com.alexwave.restful.models.Author;
+import com.alexwave.restful.entities.Author;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

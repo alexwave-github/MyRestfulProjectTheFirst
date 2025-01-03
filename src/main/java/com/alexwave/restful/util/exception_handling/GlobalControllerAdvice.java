@@ -10,16 +10,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalControllerAdvice {
     ErrorResponse errorResponse = new ErrorResponse();
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleIdNotFoundException(GlobalParentException exception){
-
-        if(exception instanceof IdNotFoundException || exception instanceof EmptyListException){
-            errorResponse = new ErrorResponse(exception.getMessage());
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<ErrorResponse> handleException(GlobalParentException exception) {
+        errorResponse = new ErrorResponse(exception.getMessage());
+        return new ResponseEntity<>(errorResponse, exception.getStatus());
 
 
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+////        if(exception instanceof IdNotFoundException || exception instanceof EmptyListException){
+//            errorResponse = new ErrorResponse(exception.getMessage());
+//            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+////        }
+
+
+
+//        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 
 
     }
