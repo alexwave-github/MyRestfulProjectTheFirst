@@ -3,8 +3,8 @@ package com.alexwave.restful.services;
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.repositories.AuthorRepository;
+import com.alexwave.restful.util.exception_handling.AuthorIdNotFoundException;
 import com.alexwave.restful.util.exception_handling.EmptyListException;
-import com.alexwave.restful.util.exception_handling.IdNotFoundException;
 import com.alexwave.restful.util.mapper.AuthorMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class AuthorService {
             AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(author.get()); // оставил для наглядности
             return authorDTO;
         } else {
-            throw new IdNotFoundException("Author not found!");
+            throw new AuthorIdNotFoundException();
         }
     }
 
@@ -51,14 +51,16 @@ public class AuthorService {
     }
 
     @Transactional
-    public AuthorDTO update(int id, Author author) {
-        AuthorDTO authorDTO = findById(id);
-        if (authorDTO == null) {
-            throw new IdNotFoundException("Author not found!");
-        } else {
-            authorDTO.setName(author.getName());
-            authorsRepository.save(author);
+    public AuthorDTO updateById(int id, Author author) {
+        Optional<Author> authorOptional = authorsRepository.findById(id);
+        if (authorOptional.isPresent()) {
+            Author authorToUpdate = authorOptional.get();
+            authorToUpdate.setName(author.getName());
+            authorsRepository.save(authorToUpdate);
+            AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(authorToUpdate);// оставил для наглядности
             return authorDTO;
+        } else {
+            throw new AuthorIdNotFoundException();
         }
     }
 

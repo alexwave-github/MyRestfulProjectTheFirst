@@ -43,7 +43,7 @@ public class AuthorController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable(value = "id") int id, @RequestBody Author author) {
-        AuthorDTO authorDTO = authorService.update(id, author);
+        AuthorDTO authorDTO = authorService.updateById(id, author);
         return new ResponseEntity<>(authorDTO, HttpStatus.OK);
     }
 

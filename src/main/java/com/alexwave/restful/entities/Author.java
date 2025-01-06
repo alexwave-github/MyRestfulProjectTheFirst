@@ -2,6 +2,9 @@ package com.alexwave.restful.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,9 +24,11 @@ public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "author_id")
-    private int id;
+    private Integer id;
 
     @Column(name = "name")
+    @NotEmpty
+    @NotNull
     private String name;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)

@@ -6,7 +6,7 @@ import com.alexwave.restful.entities.Paper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
 import com.alexwave.restful.util.exception_handling.EmptyListException;
-import com.alexwave.restful.util.exception_handling.IdNotFoundException;
+import com.alexwave.restful.util.exception_handling.AuthorIdNotFoundException;
 import com.alexwave.restful.util.mapper.AuthorMapper;
 import com.alexwave.restful.util.mapper.PaperMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,7 @@ public class PaperService {
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
 
+    @Transactional(readOnly = true)
     public List<PaperDTO> findAll() {
         List<Paper> papers = paperRepository.findAll();
         List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(papers);
@@ -36,7 +37,7 @@ public class PaperService {
             return paperDTOS;
         }
     }
-
+    @Transactional(readOnly = true)
     public List<PaperDTO> findAllByAuthorId(int id) {
         Optional<Author> optionalAuthor = authorRepository.findById(id);
 
@@ -49,10 +50,11 @@ public class PaperService {
                 return paperDTOS;
             }
         } else {
-            throw new IdNotFoundException("Author not found!");
+            throw new AuthorIdNotFoundException();
         }
     }
 
+    @Transactional(readOnly = true)
     public PaperDTO findById(int id) {
         Optional<Paper> paper = paperRepository.findById(id);
 
@@ -60,7 +62,7 @@ public class PaperService {
             PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper.get()); // для наглядности
             return paperDTO;
         } else {
-            throw new IdNotFoundException("Paper not found!");
+            throw new AuthorIdNotFoundException();
         }
     }
 
@@ -75,7 +77,7 @@ public class PaperService {
     public PaperDTO update(int id, Paper paper) {
         Optional<Paper> optionalPaper = paperRepository.findById(id);
         if (optionalPaper.isEmpty()) {
-            throw new IdNotFoundException("Paper not found!");
+            throw new AuthorIdNotFoundException();
         } else {
             Paper updatedPaper = optionalPaper.get();
             updatedPaper.setTitle(paper.getTitle());

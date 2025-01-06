@@ -28,7 +28,7 @@ public class Paper {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "paper_id")
-    private int id;
+    private Integer id;
 
     @Column(name = "title")
     private String title;
