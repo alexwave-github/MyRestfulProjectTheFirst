@@ -1,7 +1,6 @@
 package com.alexwave.restful.controllers;
 
 import com.alexwave.restful.dto.AuthorDTO;
-import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.services.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,16 +34,16 @@ public class AuthorController {
     }
 
     @PostMapping
-    public ResponseEntity<AuthorDTO> createAuthor(@RequestBody Author author) {
-        AuthorDTO authorDTO  = authorService.save(author);
-
-        return new ResponseEntity<>(authorDTO, HttpStatus.CREATED);
+    public ResponseEntity<AuthorDTO> createAuthor(@RequestBody AuthorDTO authorDTO) {
+        AuthorDTO authorToSave  = authorService.save(authorDTO);
+        return new ResponseEntity<>(authorToSave, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable(value = "id") int id, @RequestBody Author author) {
-        AuthorDTO authorDTO = authorService.updateById(id, author);
-        return new ResponseEntity<>(authorDTO, HttpStatus.OK);
+    public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable(value = "id") int id,
+                                                  @RequestBody AuthorDTO authorDTO) {
+        AuthorDTO authorToUpdate = authorService.updateById(id, authorDTO);
+        return new ResponseEntity<>(authorToUpdate, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

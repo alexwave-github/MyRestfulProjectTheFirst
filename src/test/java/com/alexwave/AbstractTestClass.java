@@ -48,6 +48,10 @@ public abstract class AbstractTestClass {
 
     @DynamicPropertySource
     static void registerPostgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRES_CONTAINER::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES_CONTAINER::getUsername);
+        registry.add("spring.datasource.password", POSTGRES_CONTAINER::getPassword);
+
         registry.add("spring.liquibase.url", POSTGRES_CONTAINER::getJdbcUrl);
         registry.add("spring.liquibase.user", POSTGRES_CONTAINER::getUsername);
         registry.add("spring.liquibase.password", POSTGRES_CONTAINER::getPassword);

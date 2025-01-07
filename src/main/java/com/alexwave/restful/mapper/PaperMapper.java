@@ -1,4 +1,4 @@
-package com.alexwave.restful.util.mapper;
+package com.alexwave.restful.mapper;
 
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Paper;

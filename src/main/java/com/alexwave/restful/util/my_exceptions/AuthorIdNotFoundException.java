@@ -1,8 +1,8 @@
-package com.alexwave.restful.util.exception_handling;
+package com.alexwave.restful.util.my_exceptions;
 
 import org.springframework.http.HttpStatus;
 
-public class AuthorIdNotFoundException extends GlobalParentException{
+public class AuthorIdNotFoundException extends GlobalException {
     static final String DEFAULT_MESSAGE = "Author's ID not found";
 
     public AuthorIdNotFoundException() {
@@ -10,7 +10,7 @@ public class AuthorIdNotFoundException extends GlobalParentException{
     }
 
     @Override
-    HttpStatus getStatus() {
+    public HttpStatus getStatus() {
         return HttpStatus.NOT_FOUND;
     }
 }

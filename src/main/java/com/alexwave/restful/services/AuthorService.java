@@ -3,17 +3,15 @@ package com.alexwave.restful.services;
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.repositories.AuthorRepository;
-import com.alexwave.restful.util.exception_handling.AuthorIdNotFoundException;
-import com.alexwave.restful.util.exception_handling.EmptyListException;
-import com.alexwave.restful.util.mapper.AuthorMapper;
+import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
+import com.alexwave.restful.util.my_exceptions.AuthorEmptyListException;
+import com.alexwave.restful.mapper.AuthorMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
-// FIXME add integration and unit tests
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +23,8 @@ public class AuthorService {
     public List<AuthorDTO> findAll() {
         List<AuthorDTO> authorDTOS = authorMapper.authorsToAuthorDTOs(authorsRepository.findAll());
         if (authorDTOS.isEmpty()) {
-            throw new EmptyListException("Authors do not exist yet!");
+            throw new AuthorEmptyListException("Authors do not exist yet!");
         } else {
-
             return authorDTOS;
         }
     }
@@ -43,22 +40,21 @@ public class AuthorService {
     }
 
     @Transactional
-    public AuthorDTO save(Author author) {
+    public AuthorDTO save(AuthorDTO authorDTO) {
+        Author author = authorMapper.authorDTOToAuthor(authorDTO);
         authorsRepository.save(author);
-        AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(author); // оставил для наглядности
 
-        return authorDTO;
+        return authorMapper.authorToAuthorDTO(author);
     }
 
     @Transactional
-    public AuthorDTO updateById(int id, Author author) {
+    public AuthorDTO updateById(int id, AuthorDTO authorDTO) {
         Optional<Author> authorOptional = authorsRepository.findById(id);
         if (authorOptional.isPresent()) {
             Author authorToUpdate = authorOptional.get();
-            authorToUpdate.setName(author.getName());
+            authorToUpdate.setName(authorMapper.authorDTOToAuthor(authorDTO).getName());
             authorsRepository.save(authorToUpdate);
-            AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(authorToUpdate);// оставил для наглядности
-            return authorDTO;
+            return authorMapper.authorToAuthorDTO(authorToUpdate);
         } else {
             throw new AuthorIdNotFoundException();
         }

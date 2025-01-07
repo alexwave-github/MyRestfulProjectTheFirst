@@ -5,10 +5,10 @@ import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.entities.Paper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
-import com.alexwave.restful.util.exception_handling.EmptyListException;
-import com.alexwave.restful.util.exception_handling.AuthorIdNotFoundException;
-import com.alexwave.restful.util.mapper.AuthorMapper;
-import com.alexwave.restful.util.mapper.PaperMapper;
+import com.alexwave.restful.util.my_exceptions.AuthorEmptyListException;
+import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
+import com.alexwave.restful.mapper.AuthorMapper;
+import com.alexwave.restful.mapper.PaperMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ public class PaperService {
         List<Paper> papers = paperRepository.findAll();
         List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(papers);
         if (paperDTOS.isEmpty()) {
-            throw new EmptyListException("Papers do not exist yet!");
+            throw new AuthorEmptyListException("Papers do not exist yet!");
         } else {
             return paperDTOS;
         }
@@ -45,7 +45,7 @@ public class PaperService {
             List<Paper> papers = optionalAuthor.get().getPapers();
             List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(papers);
             if (paperDTOS.isEmpty()) {
-                throw new EmptyListException("Papers do not exist yet!");
+                throw new AuthorEmptyListException("Papers do not exist yet!");
             } else {
                 return paperDTOS;
             }

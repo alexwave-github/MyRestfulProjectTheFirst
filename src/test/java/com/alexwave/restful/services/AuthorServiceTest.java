@@ -4,19 +4,22 @@ import com.alexwave.AbstractTestClass;
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.repositories.AuthorRepository;
-import com.alexwave.restful.util.exception_handling.EmptyListException;
-import com.alexwave.restful.util.exception_handling.AuthorIdNotFoundException;
-import com.alexwave.restful.util.mapper.AuthorMapper;
+import com.alexwave.restful.util.my_exceptions.AuthorEmptyListException;
+import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
+import com.alexwave.restful.mapper.AuthorMapper;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SpringBootTest
 class AuthorServiceTest extends AbstractTestClass {
 
     @Autowired
@@ -31,7 +34,7 @@ class AuthorServiceTest extends AbstractTestClass {
     @Test
     void testFindAll() {
         Author author = new Author();
-        author.setName("Test Author");
+        author.setName("Author");
         authorRepository.save(author);
 
         List<AuthorDTO> authorDTOS = authorService.findAll();
@@ -41,7 +44,7 @@ class AuthorServiceTest extends AbstractTestClass {
 
     @Test
     void testFindAllThrowsException() {
-        assertThat(catchThrowableOfType(() -> authorService.findAll(), EmptyListException.class));
+        assertThat(catchThrowableOfType(() -> authorService.findAll(), AuthorEmptyListException.class));
     }
 
     @Test
@@ -62,7 +65,7 @@ class AuthorServiceTest extends AbstractTestClass {
     }
 
     @Test
-    void save() {
+    void testSave() {
         Author author = Instancio.of(Author.class)
                 .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
 
@@ -91,8 +94,9 @@ class AuthorServiceTest extends AbstractTestClass {
     void testUpdateByIdThrowsException() {
         Author author = Instancio.of(Author.class)
                 .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
+        AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(author);
 
-        assertThat(catchThrowableOfType(() -> authorService.updateById(1000, author), AuthorIdNotFoundException.class));
+        assertThat(catchThrowableOfType(() -> authorService.updateById(1000, authorDTO), AuthorIdNotFoundException.class));
 
     }
 
@@ -101,18 +105,17 @@ class AuthorServiceTest extends AbstractTestClass {
     void testDeleteById() {
         Author author = Instancio.of(Author.class)
                 .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
-
         Author savedAuthor = authorRepository.save(author);
 
         authorService.deleteById(savedAuthor.getId());
 
-        boolean exceptionThrown = false;
+        assertThat(authorRepository.findById(savedAuthor.getId()).isEmpty()).isTrue();
 
-        try {
-            assertThat(authorService.findAll()).isEmpty();
-        } catch (EmptyListException e) {
-            exceptionThrown = true;
-        }
-        assertThat(exceptionThrown).isTrue();
+    }
+
+    @Test
+    void testDeleteByIdThrowsException() {
+        assertThrows(AuthorIdNotFoundException.class,
+                () -> authorService.findById(1));
     }
 }
