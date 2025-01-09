@@ -4,7 +4,7 @@ import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
-import com.alexwave.restful.util.my_exceptions.AuthorEmptyListException;
+import com.alexwave.restful.util.my_exceptions.AuthorListIsEmptyException;
 import com.alexwave.restful.mapper.AuthorMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,20 +20,21 @@ public class AuthorService {
     private final AuthorRepository authorsRepository;
     private final AuthorMapper authorMapper;
 
+    @Transactional(readOnly = true)
     public List<AuthorDTO> findAll() {
         List<AuthorDTO> authorDTOS = authorMapper.authorsToAuthorDTOs(authorsRepository.findAll());
         if (authorDTOS.isEmpty()) {
-            throw new AuthorEmptyListException("Authors do not exist yet!");
+            throw new AuthorListIsEmptyException();
         } else {
             return authorDTOS;
         }
     }
 
+    @Transactional(readOnly = true)
     public AuthorDTO findById(int id) {
         Optional<Author> author = authorsRepository.findById(id);
         if (author.isPresent()) {
-            AuthorDTO authorDTO = authorMapper.authorToAuthorDTO(author.get()); // оставил для наглядности
-            return authorDTO;
+            return authorMapper.authorToAuthorDTO(author.get());
         } else {
             throw new AuthorIdNotFoundException();
         }

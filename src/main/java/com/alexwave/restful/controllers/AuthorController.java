@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 // FIXME add integration and/or unit tests
-// FIXME add GlobalControllerAdvice
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +35,7 @@ public class AuthorController {
     @PostMapping
     public ResponseEntity<AuthorDTO> createAuthor(@RequestBody AuthorDTO authorDTO) {
         AuthorDTO authorToSave  = authorService.save(authorDTO);
+
         return new ResponseEntity<>(authorToSave, HttpStatus.CREATED);
     }
 
@@ -43,6 +43,7 @@ public class AuthorController {
     public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable(value = "id") int id,
                                                   @RequestBody AuthorDTO authorDTO) {
         AuthorDTO authorToUpdate = authorService.updateById(id, authorDTO);
+
         return new ResponseEntity<>(authorToUpdate, HttpStatus.OK);
     }
 
@@ -50,6 +51,6 @@ public class AuthorController {
     public ResponseEntity<String> deleteAuthor(@PathVariable(value = "id") int id) {
         authorService.deleteById(id);
 
-        return new ResponseEntity<>("Author with id " + id + " was deleted", HttpStatus.OK);
+        return new ResponseEntity<>("Author with id " + id + " deleted", HttpStatus.OK);
     }
 }

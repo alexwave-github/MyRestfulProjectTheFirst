@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 // FIXME add integration and unit tests
-// FIXME add GlobalControllerAdvice
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/papers")
@@ -39,30 +39,30 @@ public class PaperController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PaperDTO> getPaperById(@PathVariable(value = "id") int id) {
-        PaperDTO paper = paperService.findById(id);
+        PaperDTO paperDTO = paperService.findById(id);
 
-        return new ResponseEntity<>(paper, HttpStatus.OK);
+        return new ResponseEntity<>(paperDTO, HttpStatus.OK);
     }
 
     @PostMapping("/author/{authorId}")
-    public ResponseEntity<PaperDTO> createPaper(@RequestBody Paper paper, @PathVariable(value = "authorId") int authorId) {
-        AuthorDTO authorDTO = authorService.findById(authorId);
-        PaperDTO paperDTO = paperService.save(paper);
-        paperDTO.setAuthor(authorDTO);
+    public ResponseEntity<PaperDTO> createPaper(@RequestBody PaperDTO paperDTO,
+                                                @PathVariable(value = "authorId") int authorId) {
+        PaperDTO paperDTOtoSave = paperService.save(paperDTO, authorId);
 
-        return new ResponseEntity<>(paperDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(paperDTOtoSave, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PaperDTO> updatePaper(@PathVariable(value = "id") int id, @RequestBody Paper paper) {
-        PaperDTO updatedPaper = paperService.update(id,paper);
+    public ResponseEntity<PaperDTO> updatePaper(@PathVariable(value = "id") int id, @RequestBody PaperDTO paperDTO) {
+        PaperDTO paperToUpdate = paperService.updateById(id,paperDTO);
 
-        return new ResponseEntity<>(updatedPaper, HttpStatus.OK);
+        return new ResponseEntity<>(paperToUpdate, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePaper(@PathVariable(value = "id") int id) {
         paperService.deleteById(id);
+
         return new ResponseEntity<>("Paper with id " + id + " deleted", HttpStatus.OK);
     }
 

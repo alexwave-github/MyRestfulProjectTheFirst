@@ -9,6 +9,12 @@ import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PaperMapper {
+
     PaperDTO paperToPaperDTO(Paper paper);
+
+    Paper paperDTOToPaper(PaperDTO paperDTO);
+
     List<PaperDTO> papersToPaperDTOs(List<Paper> papers);
+
+    List<Paper> paperDTOsToPapers(List<PaperDTO> paperDTOs);
 }

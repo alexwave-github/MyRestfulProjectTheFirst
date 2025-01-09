@@ -5,10 +5,11 @@ import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.entities.Paper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
-import com.alexwave.restful.util.my_exceptions.AuthorEmptyListException;
+import com.alexwave.restful.util.my_exceptions.AuthorListIsEmptyException;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
-import com.alexwave.restful.mapper.AuthorMapper;
 import com.alexwave.restful.mapper.PaperMapper;
+import com.alexwave.restful.util.my_exceptions.PaperIdNotFoundException;
+import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,29 +26,26 @@ public class PaperService {
     private final PaperRepository paperRepository;
     private final PaperMapper paperMapper;
     private final AuthorRepository authorRepository;
-    private final AuthorMapper authorMapper;
 
     @Transactional(readOnly = true)
     public List<PaperDTO> findAll() {
-        List<Paper> papers = paperRepository.findAll();
-        List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(papers);
+        List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(paperRepository.findAll());
         if (paperDTOS.isEmpty()) {
-            throw new AuthorEmptyListException("Papers do not exist yet!");
+            throw new PaperListIsEmptyException();
         } else {
             return paperDTOS;
         }
     }
+
     @Transactional(readOnly = true)
     public List<PaperDTO> findAllByAuthorId(int id) {
         Optional<Author> optionalAuthor = authorRepository.findById(id);
-
         if (optionalAuthor.isPresent()) {
             List<Paper> papers = optionalAuthor.get().getPapers();
-            List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(papers);
-            if (paperDTOS.isEmpty()) {
-                throw new AuthorEmptyListException("Papers do not exist yet!");
+            if (papers.isEmpty()) {
+                throw new PaperListIsEmptyException();
             } else {
-                return paperDTOS;
+                return paperMapper.papersToPaperDTOs(papers);
             }
         } else {
             throw new AuthorIdNotFoundException();
@@ -57,35 +55,41 @@ public class PaperService {
     @Transactional(readOnly = true)
     public PaperDTO findById(int id) {
         Optional<Paper> paper = paperRepository.findById(id);
-
         if (paper.isPresent()) {
-            PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper.get()); // для наглядности
-            return paperDTO;
+            return paperMapper.paperToPaperDTO(paper.get());
         } else {
-            throw new AuthorIdNotFoundException();
+            throw new PaperIdNotFoundException();
         }
     }
 
     @Transactional
-    public PaperDTO save(Paper paper) {
-        paperRepository.save(paper);
-        PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper); // для наглядности
-        return paperDTO;
+    public PaperDTO save(PaperDTO paperDTO, int id) {
+        Optional<Author> optionalAuthor = authorRepository.findById(id);
+        if (optionalAuthor.isPresent()) {
+            Paper paper = paperMapper.paperDTOToPaper(paperDTO);
+            paper.setAuthor(optionalAuthor.get());
+            paperRepository.save(paper);
+            authorRepository.save(optionalAuthor.get());
+
+            return paperMapper.paperToPaperDTO(paper);
+        } else {
+            throw new AuthorIdNotFoundException();
+        }
+
     }
 
     @Transactional
-    public PaperDTO update(int id, Paper paper) {
+    public PaperDTO updateById(int id, PaperDTO paperDTO) {
         Optional<Paper> optionalPaper = paperRepository.findById(id);
-        if (optionalPaper.isEmpty()) {
-            throw new AuthorIdNotFoundException();
+        if (optionalPaper.isPresent()) {
+            Paper paperToUpdate = optionalPaper.get();
+            paperToUpdate.setTitle(paperMapper.paperDTOToPaper(paperDTO).getTitle());
+            paperToUpdate.setContent(paperMapper.paperDTOToPaper(paperDTO).getContent());
+            paperToUpdate.setDateForPublishing(paperMapper.paperDTOToPaper(paperDTO).getDateForPublishing());
+            paperRepository.save(paperToUpdate);
+            return paperMapper.paperToPaperDTO(paperToUpdate);
         } else {
-            Paper updatedPaper = optionalPaper.get();
-            updatedPaper.setTitle(paper.getTitle());
-            updatedPaper.setContent(updatedPaper.getContent());
-            updatedPaper.setDateForPublishing(updatedPaper.getDateForPublishing());
-            paperRepository.save(paper);
-            PaperDTO paperDTO = paperMapper.paperToPaperDTO(paper);// для наглядности
-            return paperDTO;
+            throw new PaperIdNotFoundException();
         }
     }
 

@@ -2,10 +2,10 @@ package com.alexwave.restful.util.my_exceptions;
 
 import org.springframework.http.HttpStatus;
 
-public class AuthorIdNotFoundException extends GlobalException {
-    static final String DEFAULT_MESSAGE = "Author with this ID not found";
+public class PaperIdNotFoundException extends GlobalException {
+    static final String DEFAULT_MESSAGE = "Paper with this ID not found";
 
-    public AuthorIdNotFoundException() {
+    public PaperIdNotFoundException() {
         super(DEFAULT_MESSAGE);
     }
 
