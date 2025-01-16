@@ -2,27 +2,47 @@ package com.alexwave.restful.services;
 
 import com.alexwave.AbstractTestClass;
 import com.alexwave.restful.dto.AuthorDTO;
+import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Author;
+import com.alexwave.restful.entities.Paper;
+import com.alexwave.restful.mapper.AuthorMapper;
+import com.alexwave.restful.mapper.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
 import com.alexwave.restful.util.my_exceptions.AuthorListIsEmptyException;
+import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
+import lombok.extern.slf4j.Slf4j;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+@Slf4j
 @SpringBootTest
 class AuthorServiceTest extends AbstractTestClass {
     @Autowired
     private AuthorRepository authorRepository;
+
     @Autowired
     private AuthorService authorService;
+
+    @Autowired
+    private AuthorMapper authorMapper;
+
+    @Autowired
+    private PaperService paperService;
+
+    @Autowired
+    private PaperMapper paperMapper;
 
     @Test
     void testFindAll() {
@@ -101,5 +121,33 @@ class AuthorServiceTest extends AbstractTestClass {
     @Test
     void testDeleteByIdThrowsException() {
         assertThrows(AuthorIdNotFoundException.class, () -> authorService.findById(1000));
+    }
+
+    @Test
+    void testFindPapersByAuthorId() {
+        Author author = Instancio.of(Author.class)
+                .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
+        authorRepository.save(author);
+        List<Paper> papers = new ArrayList<>();
+        Paper paper = new Paper();
+        paper.setTitle("Paper Title");
+        paper.setContent("Paper Content");
+        paper.setDateForPublishing(Instant.now());
+        paperService.save(paperMapper.paperToPaperDTO(paper), author.getId());
+        papers.add(paper);
+
+        author.setPapers(papers);
+        Author savedAuthor = authorRepository.save(author);
+
+
+        List<PaperDTO> paperDTOs = authorService.findPapersByAuthorId(savedAuthor.getId());
+
+        assertThat(paperDTOs).isNotEmpty();
+    }
+
+    @Test
+    void testFindPapersByAuthorIdThrowsException() {
+        assertThrowsExactly(AuthorIdNotFoundException.class, () -> authorService.findPapersByAuthorId(1000))
+                .addSuppressed(new PaperListIsEmptyException());
     }
 }

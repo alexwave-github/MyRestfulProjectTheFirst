@@ -1,6 +1,7 @@
 package com.alexwave.restful.controllers;
 
 import com.alexwave.restful.dto.AuthorDTO;
+import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.services.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -52,5 +53,11 @@ public class AuthorController {
         authorService.deleteById(id);
 
         return new ResponseEntity<>("Author with id " + id + " deleted", HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/papers")
+    public ResponseEntity<List<PaperDTO>> getPapersOfThisAuthor(@PathVariable(value = "id") int id) {
+        List<PaperDTO> papers = authorService.findPapersByAuthorId(id);
+        return new ResponseEntity<>(papers, HttpStatus.OK);
     }
 }

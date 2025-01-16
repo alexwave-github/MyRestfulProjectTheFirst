@@ -1,11 +1,15 @@
 package com.alexwave.restful.services;
 
 import com.alexwave.restful.dto.AuthorDTO;
+import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Author;
+import com.alexwave.restful.entities.Paper;
+import com.alexwave.restful.mapper.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
 import com.alexwave.restful.util.my_exceptions.AuthorListIsEmptyException;
 import com.alexwave.restful.mapper.AuthorMapper;
+import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,14 +23,16 @@ public class AuthorService {
 
     private final AuthorRepository authorsRepository;
     private final AuthorMapper authorMapper;
+    private final PaperMapper paperMapper;
 
     @Transactional(readOnly = true)
     public List<AuthorDTO> findAll() {
-        List<AuthorDTO> authorDTOS = authorMapper.authorsToAuthorDTOs(authorsRepository.findAll());
-        if (authorDTOS.isEmpty()) {
+        List<Author> authors = authorsRepository.findAll();
+
+        if (authors.isEmpty()) {
             throw new AuthorListIsEmptyException();
         } else {
-            return authorDTOS;
+            return authorMapper.authorsToAuthorDTOs(authors);
         }
     }
 
@@ -43,6 +49,7 @@ public class AuthorService {
     @Transactional
     public AuthorDTO save(AuthorDTO authorDTO) {
         Author author = authorMapper.authorDTOToAuthor(authorDTO);
+        author.setName(authorDTO.getName());
         authorsRepository.save(author);
 
         return authorMapper.authorToAuthorDTO(author);
@@ -66,4 +73,18 @@ public class AuthorService {
         authorsRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public List<PaperDTO> findPapersByAuthorId(int id) {
+        Optional<Author> author = authorsRepository.findById(id);
+        if (author.isPresent()) {
+            List<Paper> papers = author.get().getPapers();
+            if (papers.isEmpty()) {
+                throw new PaperListIsEmptyException();
+            } else {
+                return paperMapper.papersToPaperDTOs(papers);
+            }
+        } else {
+            throw new AuthorIdNotFoundException();
+        }
+    }
 }

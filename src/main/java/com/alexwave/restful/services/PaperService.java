@@ -3,11 +3,10 @@ package com.alexwave.restful.services;
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.entities.Paper;
+import com.alexwave.restful.mapper.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
-import com.alexwave.restful.util.my_exceptions.AuthorListIsEmptyException;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
-import com.alexwave.restful.mapper.PaperMapper;
 import com.alexwave.restful.util.my_exceptions.PaperIdNotFoundException;
 import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
 import lombok.RequiredArgsConstructor;
@@ -29,26 +28,11 @@ public class PaperService {
 
     @Transactional(readOnly = true)
     public List<PaperDTO> findAll() {
-        List<PaperDTO> paperDTOS = paperMapper.papersToPaperDTOs(paperRepository.findAll());
-        if (paperDTOS.isEmpty()) {
+        List<Paper> papers = paperRepository.findAll();
+        if (papers.isEmpty()) {
             throw new PaperListIsEmptyException();
         } else {
-            return paperDTOS;
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public List<PaperDTO> findAllByAuthorId(int id) {
-        Optional<Author> optionalAuthor = authorRepository.findById(id);
-        if (optionalAuthor.isPresent()) {
-            List<Paper> papers = optionalAuthor.get().getPapers();
-            if (papers.isEmpty()) {
-                throw new PaperListIsEmptyException();
-            } else {
-                return paperMapper.papersToPaperDTOs(papers);
-            }
-        } else {
-            throw new AuthorIdNotFoundException();
+            return paperMapper.papersToPaperDTOs(papers);
         }
     }
 
@@ -75,7 +59,6 @@ public class PaperService {
         } else {
             throw new AuthorIdNotFoundException();
         }
-
     }
 
     @Transactional

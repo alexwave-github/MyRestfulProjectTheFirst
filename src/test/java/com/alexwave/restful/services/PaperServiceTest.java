@@ -9,20 +9,17 @@ import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
 import com.alexwave.restful.util.my_exceptions.PaperIdNotFoundException;
-import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 @SpringBootTest
 class PaperServiceTest extends AbstractTestClass {
@@ -50,36 +47,6 @@ class PaperServiceTest extends AbstractTestClass {
         List<PaperDTO> paperDTOs = paperService.findAll();
 
         assertThat(paperDTOs).isNotEmpty();
-    }
-
-//    @Test
-//    void testFindAllThrowsException() {
-//        assertThrows(PaperListIsEmptyException.class, () -> paperService.findAll()); // с этим тестом не билдится, потому как ничего не бросает (а ожидаемо бросает)
-//    }
-
-    @Test
-    void testFindAllByAuthorId() {
-        Author author = new Author();
-        List<Paper> papers = new ArrayList<>();
-        Paper paper = new Paper();
-        paper.setTitle("Paper Title");
-        paper.setContent("Paper Content");
-        paper.setDateForPublishing(Instant.now());
-        papers.add(paper);
-
-        author.setName("Author Name");
-        author.setPapers(papers);
-        authorRepository.save(author);
-
-        List<Paper> savedPapers = author.getPapers();
-        List<PaperDTO> paperDTOs = paperMapper.papersToPaperDTOs(savedPapers);
-        assertThat(paperDTOs).isNotEmpty();
-    }
-
-    @Test
-    void testFindAllByAuthorIdThrowsAuthorIdNotFoundException() {
-        assertThrowsExactly(AuthorIdNotFoundException.class, () -> paperService.findAllByAuthorId(1000))
-                .addSuppressed(new PaperListIsEmptyException());
     }
 
     @Test

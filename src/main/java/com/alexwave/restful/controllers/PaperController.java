@@ -1,8 +1,6 @@
 package com.alexwave.restful.controllers;
 
-import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.dto.PaperDTO;
-import com.alexwave.restful.entities.Paper;
 import com.alexwave.restful.services.AuthorService;
 import com.alexwave.restful.services.PaperService;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +28,12 @@ public class PaperController {
         return new ResponseEntity<>(papers, HttpStatus.OK);
     }
 
-    @GetMapping("/author/{authorId}")
-    public ResponseEntity<List<PaperDTO>> getPapersByAuthorId(@PathVariable(value = "authorId") int authorId) {
-        List<PaperDTO> papersOfTheAuthor = paperService.findAllByAuthorId(authorId);
-
-        return new ResponseEntity<>(papersOfTheAuthor, HttpStatus.OK);
-    }
+//    @GetMapping("/author/{authorId}")
+//    public ResponseEntity<List<PaperDTO>> getPapersByAuthorId(@PathVariable(value = "authorId") int authorId) {
+//        List<PaperDTO> papersOfTheAuthor = paperService.findAllByAuthorId(authorId);
+//
+//        return new ResponseEntity<>(papersOfTheAuthor, HttpStatus.OK);
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<PaperDTO> getPaperById(@PathVariable(value = "id") int id) {
@@ -65,5 +63,4 @@ public class PaperController {
 
         return new ResponseEntity<>("Paper with id " + id + " deleted", HttpStatus.OK);
     }
-
 }
