@@ -38,9 +38,9 @@ public class AuthorService {
 
     @Transactional(readOnly = true)
     public AuthorDTO findById(int id) {
-        Optional<Author> author = authorsRepository.findById(id);
-        if (author.isPresent()) {
-            return authorMapper.authorToAuthorDTO(author.get());
+        Optional<Author> optionalAuthor = authorsRepository.findById(id);
+        if (optionalAuthor.isPresent()) {
+            return authorMapper.authorToAuthorDTO(optionalAuthor.get());
         } else {
             throw new AuthorIdNotFoundException();
         }
@@ -70,7 +70,13 @@ public class AuthorService {
 
     @Transactional
     public void deleteById(int id) {
-        authorsRepository.deleteById(id);
+        Optional<Author> optionalAuthor = authorsRepository.findById(id);
+        if (optionalAuthor.isPresent()) {
+            authorsRepository.deleteById(optionalAuthor.get().getId());
+        } else {
+            throw new AuthorIdNotFoundException();
+        }
+
     }
 
     @Transactional(readOnly = true)

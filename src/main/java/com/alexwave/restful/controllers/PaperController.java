@@ -1,7 +1,6 @@
 package com.alexwave.restful.controllers;
 
 import com.alexwave.restful.dto.PaperDTO;
-import com.alexwave.restful.services.AuthorService;
 import com.alexwave.restful.services.PaperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,16 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// FIXME add integration and unit tests
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/papers")
 public class PaperController {
 
     private final PaperService paperService;
-    private final AuthorService authorService;
-
 
     @GetMapping
     public ResponseEntity<List<PaperDTO>> getAllPapers() {
@@ -27,13 +22,6 @@ public class PaperController {
 
         return new ResponseEntity<>(papers, HttpStatus.OK);
     }
-
-//    @GetMapping("/author/{authorId}")
-//    public ResponseEntity<List<PaperDTO>> getPapersByAuthorId(@PathVariable(value = "authorId") int authorId) {
-//        List<PaperDTO> papersOfTheAuthor = paperService.findAllByAuthorId(authorId);
-//
-//        return new ResponseEntity<>(papersOfTheAuthor, HttpStatus.OK);
-//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<PaperDTO> getPaperById(@PathVariable(value = "id") int id) {

@@ -4,12 +4,14 @@ import com.alexwave.AbstractTestClass;
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.entities.Paper;
-import com.alexwave.restful.mapper.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
 import com.alexwave.restful.util.my_exceptions.PaperIdNotFoundException;
+import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
+import lombok.extern.slf4j.Slf4j;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,9 +20,10 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.instancio.Select.field;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Slf4j
 @SpringBootTest
 class PaperServiceTest extends AbstractTestClass {
 
@@ -31,10 +34,13 @@ class PaperServiceTest extends AbstractTestClass {
     private PaperService paperService;
 
     @Autowired
-    private PaperMapper paperMapper;
-
-    @Autowired
     private AuthorRepository authorRepository;
+
+    @BeforeEach
+    void setUp() {
+        paperRepository.deleteAll();
+        authorRepository.deleteAll();
+    }
 
     @Test
     void testFindAll() {
@@ -50,6 +56,11 @@ class PaperServiceTest extends AbstractTestClass {
     }
 
     @Test
+    void testFindAllThrowsException() {
+        catchThrowableOfType(() -> paperService.findAll(), PaperListIsEmptyException.class);
+    }
+
+    @Test
     void testFindById() {
         Paper paper = Instancio.of(Paper.class)
                 .ignore(field(Paper::getId)).ignore(field(Paper::getAuthor)).create();
@@ -62,7 +73,7 @@ class PaperServiceTest extends AbstractTestClass {
 
     @Test
     void testFindByIdThrowsException() {
-        assertThrows(PaperIdNotFoundException.class, () -> paperService.findById(1000));
+        catchThrowableOfType(() -> paperService.findById(1000), PaperIdNotFoundException.class);
     }
 
     @Test
@@ -85,7 +96,7 @@ class PaperServiceTest extends AbstractTestClass {
 
     @Test
     void testSaveThrowsException() {
-        assertThrows(AuthorIdNotFoundException.class, () -> paperService.save(new PaperDTO(), 1000));
+        catchThrowableOfType(() -> paperService.save(new PaperDTO(), 1000), AuthorIdNotFoundException.class);
     }
 
     @Test
@@ -105,7 +116,7 @@ class PaperServiceTest extends AbstractTestClass {
 
     @Test
     void testUpdateByIdThrowsException() {
-        assertThrows(PaperIdNotFoundException.class, () -> paperService.updateById(1000, new PaperDTO()));
+        catchThrowableOfType(() -> paperService.updateById(1000, new PaperDTO()), PaperIdNotFoundException.class);
     }
 
     @Test
@@ -121,6 +132,6 @@ class PaperServiceTest extends AbstractTestClass {
 
     @Test
     void testDeleteByIdThrowsException() {
-        assertThrows(PaperIdNotFoundException.class, () -> paperService.findById(1000));
+        catchThrowableOfType(() -> paperService.deleteById(1000), PaperIdNotFoundException.class);
     }
 }

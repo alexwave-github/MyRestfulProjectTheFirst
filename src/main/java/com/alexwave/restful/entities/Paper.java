@@ -1,11 +1,6 @@
 package com.alexwave.restful.entities;
 
-import com.alexwave.restful.util.instantConverter.CustomInstantDeSerializer;
-import com.alexwave.restful.util.instantConverter.CustomInstantSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,8 +32,6 @@ public class Paper {
     private String content;
 
     @Column(name = "date_for_publishing")
-    @JsonDeserialize(using = CustomInstantDeSerializer.class)
-    @JsonSerialize(using = CustomInstantSerializer.class)
     private Instant dateForPublishing;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

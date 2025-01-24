@@ -16,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-// FIXME add integration and unit tests
-
 @Service
 @RequiredArgsConstructor
 public class PaperService {
@@ -52,6 +50,7 @@ public class PaperService {
         if (optionalAuthor.isPresent()) {
             Paper paper = paperMapper.paperDTOToPaper(paperDTO);
             paper.setAuthor(optionalAuthor.get());
+            optionalAuthor.get().getPapers().add(paper);
             paperRepository.save(paper);
             authorRepository.save(optionalAuthor.get());
 
@@ -78,6 +77,11 @@ public class PaperService {
 
     @Transactional
     public void deleteById(int id) {
-        paperRepository.deleteById(id);
+        Optional<Paper> optionalPaper = paperRepository.findById(id);
+        if (optionalPaper.isPresent()) {
+            paperRepository.delete(optionalPaper.get());
+        } else {
+            throw new PaperIdNotFoundException();
+        }
     }
 }
