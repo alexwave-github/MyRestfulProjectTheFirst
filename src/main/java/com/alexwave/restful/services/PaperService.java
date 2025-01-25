@@ -64,12 +64,12 @@ public class PaperService {
     public PaperDTO updateById(int id, PaperDTO paperDTO) {
         Optional<Paper> optionalPaper = paperRepository.findById(id);
         if (optionalPaper.isPresent()) {
-            Paper paperToUpdate = optionalPaper.get();
-            paperToUpdate.setTitle(paperMapper.paperDTOToPaper(paperDTO).getTitle());
-            paperToUpdate.setContent(paperMapper.paperDTOToPaper(paperDTO).getContent());
-            paperToUpdate.setDateForPublishing(paperMapper.paperDTOToPaper(paperDTO).getDateForPublishing());
-            paperRepository.save(paperToUpdate);
-            return paperMapper.paperToPaperDTO(paperToUpdate);
+            Paper paper = optionalPaper.get();
+            paper.setTitle(paperMapper.paperDTOToPaper(paperDTO).getTitle());
+            paper.setContent(paperMapper.paperDTOToPaper(paperDTO).getContent());
+            paper.setDateForPublishing(paperMapper.paperDTOToPaper(paperDTO).getDateForPublishing());
+            paperRepository.save(paper);
+            return paperMapper.paperToPaperDTO(paper);
         } else {
             throw new PaperIdNotFoundException();
         }

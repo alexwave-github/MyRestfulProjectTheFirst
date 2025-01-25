@@ -153,6 +153,6 @@ class AuthorServiceTest extends AbstractTestClass {
 
     @Test
     void testFindPapersByAuthorIdThrowsException() {
-        catchThrowableOfType(() -> authorService.findPapersByAuthorId(1000), AuthorIdNotFoundException.class).addSuppressed(new PaperListIsEmptyException());
+        catchThrowableOfType(() -> authorService.findPapersByAuthorId(1000), AuthorIdNotFoundException.class);
     }
 }

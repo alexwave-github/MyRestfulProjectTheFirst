@@ -6,6 +6,9 @@ import com.alexwave.restful.entities.Paper;
 import com.alexwave.restful.mapper.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
+import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
+import com.alexwave.restful.util.my_exceptions.PaperIdNotFoundException;
+import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,10 +21,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PaperServiceMockitoTest {
@@ -53,7 +54,7 @@ public class PaperServiceMockitoTest {
 
     @Test
     public void testFindAllThrowsException() {
-
+        assertThrows(PaperListIsEmptyException.class, () -> paperService.findAll());
     }
 
     @Test
@@ -69,6 +70,11 @@ public class PaperServiceMockitoTest {
     }
 
     @Test
+    public void testFindByIdThrowsException() {
+        assertThrows(PaperIdNotFoundException.class, () -> paperService.findById(1));
+    }
+
+    @Test
     public void testSave() {
         Author author = Instancio.create(Author.class);
         Optional<Author> optionalAuthor = Optional.of(author);
@@ -77,9 +83,62 @@ public class PaperServiceMockitoTest {
 
         doReturn(optionalAuthor).when(authorRepository).findById(author.getId());
         doReturn(paper).when(paperMapper).paperDTOToPaper(paperDTO);
-        doReturn(paper).when(paperRepository).save(paper);
+        paper.setAuthor(author);
+        author.getPapers().add(paper);
 
-        assertEquals(paperMapper.paperToPaperDTO(paper), paperService.save(paperDTO, optionalAuthor.get().getId()));
+        doReturn(paper).when(paperRepository).save(paper);
+        doReturn(author).when(authorRepository).save(author);
+        doReturn(paperDTO).when(paperMapper).paperToPaperDTO(paper);
+
+
+        assertNotNull(paperService.save(paperDTO, author.getId()));
     }
 
+    @Test
+    public void testSaveThrowsException() {
+        assertThrows(AuthorIdNotFoundException.class, () -> paperService.save(new PaperDTO(), 1));
+    }
+
+    @Test
+    public void testUpdateById() {
+        Paper paper = Instancio.create(Paper.class);
+        PaperDTO paperDTO = Instancio.create(PaperDTO.class);
+        Optional<Paper> optionalPaper = Optional.of(paper);
+
+        doReturn(optionalPaper).when(paperRepository).findById(paper.getId());
+        doReturn(paper).when(paperMapper).paperDTOToPaper(paperDTO);
+        Paper updatedPaper = optionalPaper.get();
+        updatedPaper.setTitle(paperDTO.getTitle());
+        updatedPaper.setContent(paperDTO.getContent());
+        updatedPaper.setDateForPublishing(paperDTO.getDateForPublishing());
+        paperRepository.save(updatedPaper);
+        verify(paperRepository).save(updatedPaper);
+        doReturn(paperDTO).when(paperMapper).paperToPaperDTO(paper);
+
+        assertNotNull(paperService.updateById(paper.getId(), paperDTO));
+    }
+
+    @Test
+    public void testUpdateByIdThrowsException() {
+        assertThrows(PaperIdNotFoundException.class, () -> paperService.updateById(1, new PaperDTO()));
+    }
+
+    @Test
+    public void testDeleteById() {
+        Paper paper = Instancio.create(Paper.class);
+        Optional<Paper> optionalPaper = Optional.of(paper);
+
+        doReturn(optionalPaper).when(paperRepository).findById(paper.getId());
+        Paper paperToDelete = optionalPaper.get();
+
+        paperService.deleteById(paperToDelete.getId());
+        verify(paperRepository).delete(paperToDelete);
+
+        assertNull(paperService.findById(paperToDelete.getId()));
+    }
+
+    @Test
+    public void testDeleteByIdThrowsException() {
+        assertThrows(PaperIdNotFoundException.class, () -> paperService.deleteById(1));
+    }
 }

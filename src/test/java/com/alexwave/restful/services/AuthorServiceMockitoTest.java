@@ -142,7 +142,6 @@ public class AuthorServiceMockitoTest {
 
     @Test
     void testFindPapersByAuthorIdThrowsException() {
-        assertThrows(AuthorIdNotFoundException.class, () -> authorService.findPapersByAuthorId(1))
-                .addSuppressed(new PaperListIsEmptyException());
+        assertThrows(AuthorIdNotFoundException.class, () -> authorService.findPapersByAuthorId(1));
     }
 }
