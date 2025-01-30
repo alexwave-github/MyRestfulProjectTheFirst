@@ -58,6 +58,14 @@ class AuthorControllerTest extends AbstractTestClass {
 
     @Test
     @SneakyThrows
+    void getAllAuthorsThrowsExceptionTest() {
+        mockMvc.perform(get("/authors"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @SneakyThrows
     void getAuthorByIdTest() {
         Author author = Instancio.of(Author.class)
                 .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
@@ -70,14 +78,22 @@ class AuthorControllerTest extends AbstractTestClass {
 
     @Test
     @SneakyThrows
+    void getAuthorByIdThrowsExceptionTest() {
+        mockMvc.perform(get("/authors/" + 1))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @SneakyThrows
     void createAuthorTest() {
         Author author = Instancio.of(Author.class)
                 .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
 
         String authorJson = objectMapper.writeValueAsString(author);
         mockMvc.perform(post("/authors")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(authorJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorJson))
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
@@ -92,10 +108,25 @@ class AuthorControllerTest extends AbstractTestClass {
 
         String authorJson = objectMapper.writeValueAsString(author);
         mockMvc.perform(put("/authors/" + author.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(authorJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorJson))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void updateAuthorThrowsExceptionTest() {
+        Author author = Instancio.of(Author.class)
+                .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
+        authorRepository.save(author);
+        authorRepository.deleteAll();
+        String authorJson = objectMapper.writeValueAsString(author);
+        mockMvc.perform(put("/authors/" + 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(authorJson))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -108,6 +139,14 @@ class AuthorControllerTest extends AbstractTestClass {
         mockMvc.perform(delete("/authors/" + author.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void deleteAuthorThrowsExceptionTest() {
+        mockMvc.perform(delete("/authors/" + 1))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -128,5 +167,13 @@ class AuthorControllerTest extends AbstractTestClass {
         mockMvc.perform(get("/authors/" + author.getId() + "/papers"))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void getPapersOfThisAuthorThrowsExceptionTest() {
+        mockMvc.perform(get("/authors/" + 1 + "/papers"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// FIXME add integration and/or unit tests
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/authors")
