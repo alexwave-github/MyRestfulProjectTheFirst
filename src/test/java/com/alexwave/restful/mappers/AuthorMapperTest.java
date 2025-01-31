@@ -1,4 +1,4 @@
-package com.alexwave.restful.mapper;
+package com.alexwave.restful.mappers;
 
 import com.alexwave.AbstractTestClass;
 import com.alexwave.restful.dto.AuthorDTO;

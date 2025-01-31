@@ -1,158 +1,145 @@
 package com.alexwave.restful.services;
 
-import com.alexwave.AbstractTestClass;
 import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.entities.Paper;
-import com.alexwave.restful.mapper.AuthorMapper;
-import com.alexwave.restful.mapper.PaperMapper;
+import com.alexwave.restful.mappers.AuthorMapper;
+import com.alexwave.restful.mappers.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
 import com.alexwave.restful.util.my_exceptions.AuthorListIsEmptyException;
-import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
-import lombok.extern.slf4j.Slf4j;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@Slf4j
-@SpringBootTest
-class AuthorServiceTest extends AbstractTestClass {
-    @Autowired
-    private AuthorRepository authorRepository;
+@ExtendWith(MockitoExtension.class)
+public class AuthorServiceTest {
 
-    @Autowired
-    private AuthorService authorService;
+    @InjectMocks
+    @Spy
+    private AuthorService underTest;
 
-    @Autowired
-    private AuthorMapper authorMapper;
+    @Mock
+    private AuthorRepository authorRepositoryMock;
 
-    @Autowired
-    private PaperService paperService;
+    @Mock
+    private AuthorMapper authorMapperMock;
 
-    @Autowired
-    private PaperMapper paperMapper;
-
-    @BeforeEach
-    void setUp() {
-        authorRepository.deleteAll();
-    }
+    @Mock
+    private PaperMapper paperMapperMock;
 
     @Test
     void testFindAll() {
-        Author author = new Author();
-        author.setName("Author");
-        authorRepository.save(author);
+        List<Author> authorList = Instancio.createList(Author.class);
+        List<AuthorDTO> authorDTOList = Instancio.createList(AuthorDTO.class);
 
-        List<AuthorDTO> authorDTOS = authorService.findAll();
+        doReturn(authorList).when(authorRepositoryMock).findAll();
+        doReturn(authorDTOList).when(authorMapperMock).authorsToAuthorDTOs(authorList);
 
-        assertThat(authorDTOS).isNotEmpty();
+        assertEquals(authorDTOList, underTest.findAll());
     }
 
     @Test
     void testFindAllThrowsException() {
-        catchThrowableOfType(() -> authorService.findAll(), AuthorListIsEmptyException.class);
+        assertThrows(AuthorListIsEmptyException.class, () -> underTest.findAll());
     }
 
     @Test
     void testFindById() {
-        Author author = Instancio.of(Author.class)
-                .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
-        Author savedAuthor = authorRepository.save(author);
+        Author author = Instancio.create(Author.class);
+        Optional<Author> authorOptional = Optional.of(author);
+        AuthorDTO authorDTO = Instancio.create(AuthorDTO.class);
 
-        authorService.findById(savedAuthor.getId());
+        doReturn(authorOptional).when(authorRepositoryMock).findById(author.getId());
+        doReturn(authorDTO).when(authorMapperMock).authorToAuthorDTO(author);
 
-        assertThat(author.getId()).isEqualTo(savedAuthor.getId());
+        assertEquals(authorDTO, underTest.findById(authorOptional.get().getId()));
     }
 
     @Test
     void testFindByIdThrowsException() {
-        catchThrowableOfType(()-> authorService.findById(1000), AuthorIdNotFoundException.class);
+        assertThrows(AuthorIdNotFoundException.class, () -> underTest.findById(1));
     }
 
     @Test
     void testSave() {
-        Author author = Instancio.of(Author.class)
-                .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
-        authorRepository.save(author);
+        Author author = Instancio.create(Author.class);
+        AuthorDTO authorDTO = Instancio.create(AuthorDTO.class);
 
-        AuthorDTO authorDTO = authorService.findById(author.getId());
+        doReturn(author).when(authorMapperMock).authorDTOToAuthor(authorDTO);
+        author.setName(authorDTO.getName());
+        authorRepositoryMock.save(author);
+        verify(authorRepositoryMock).save(author);
+        doReturn(authorDTO).when(authorMapperMock).authorToAuthorDTO(author);
 
-        assertThat(authorDTO).isNotNull();
-        assertThat(author.getName()).isEqualTo(authorDTO.getName());
+        assertNotNull(underTest.save(authorDTO));
     }
 
     @Test
-    void testUpdateById() {
-        Author author = Instancio.of(Author.class)
-                .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
-        authorRepository.save(author);
+    void testUpdate() {
+        Author author = Instancio.create(Author.class);
+        AuthorDTO authorDTO = Instancio.create(AuthorDTO.class);
+        Optional<Author> authorOptional = Optional.of(author);
 
-        AuthorDTO authorDTO = authorService.findById(author.getId());
-        authorDTO.setName(authorDTO.getName() + " Updated");
+        doReturn(authorOptional).when(authorRepositoryMock).findById(author.getId());
+        doReturn(author).when(authorMapperMock).authorDTOToAuthor(authorDTO);
+        author.setName(authorDTO.getName());
+        authorRepositoryMock.save(author);
+        verify(authorRepositoryMock).save(author);
+        doReturn(authorDTO).when(authorMapperMock).authorToAuthorDTO(author);
 
-        assertThat(authorDTO).isNotNull();
-        assertThat(authorDTO.getName()).isEqualTo(author.getName() + " Updated");
+        assertNotNull(underTest.updateById(author.getId(), authorDTO));
     }
 
     @Test
-    void testUpdateByIdThrowsException() {
-        catchThrowableOfType(() -> authorService.updateById(1000, new AuthorDTO()), AuthorIdNotFoundException.class);
-    }
-
-
-    @Test
-    void testDeleteById() {
-        Author author = Instancio.of(Author.class)
-                .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
-        Author savedAuthor = authorRepository.save(author);
-
-        authorService.deleteById(savedAuthor.getId());
-
-        assertThat(authorRepository.findById(savedAuthor.getId()).isEmpty());
-
+    void testUpdateThrowsException() {
+        assertThrows(AuthorIdNotFoundException.class, () -> underTest.updateById(1, new AuthorDTO()));
     }
 
     @Test
-    void testDeleteByIdThrowsException() {
-        catchThrowableOfType(() -> authorService.deleteById(1000), AuthorIdNotFoundException.class);
+    void testDelete() {
+        Author author = Instancio.create(Author.class);
+        Optional<Author> authorOptional = Optional.of(author);
+
+        doReturn(authorOptional).when(authorRepositoryMock).findById(author.getId());
+
+        underTest.deleteById(authorOptional.get().getId());
+        verify(authorRepositoryMock).deleteById(authorOptional.get().getId());
+
+        assertNull(underTest.findById(authorOptional.get().getId()));
+    }
+
+    @Test
+    void testDeleteThrowsException() {
+        assertThrows(AuthorIdNotFoundException.class, () -> underTest.deleteById(1));
     }
 
     @Test
     void testFindPapersByAuthorId() {
-        Author author = Instancio.of(Author.class)
-                .ignore(field(Author::getId)).ignore(field(Author::getPapers)).create();
-        authorRepository.save(author);
-        List<Paper> papers = new ArrayList<>();
-        Paper paper = new Paper();
-        paper.setTitle("Paper Title");
-        paper.setContent("Paper Content");
-        paper.setDateForPublishing(Instant.now());
-        paperService.save(paperMapper.paperToPaperDTO(paper), author.getId());
-        papers.add(paper);
+        Author author = Instancio.create(Author.class);
+        Optional<Author> authorOptional = Optional.of(author);
+        List<Paper> papers = author.getPapers();
+        List<PaperDTO> paperDTOS = paperMapperMock.papersToPaperDTOs(papers);
 
-        author.setPapers(papers);
-        Author savedAuthor = authorRepository.save(author);
+        doReturn(authorOptional).when(authorRepositoryMock).findById(author.getId());
+        doReturn(paperDTOS).when(paperMapperMock).papersToPaperDTOs(papers);
 
-
-        List<PaperDTO> paperDTOs = authorService.findPapersByAuthorId(savedAuthor.getId());
-
-        assertThat(paperDTOs).isNotEmpty();
+        assertEquals(underTest.findPapersByAuthorId(author.getId()), paperDTOS);
     }
 
     @Test
-    void testFindPapersByAuthorIdThrowsException() {
-        catchThrowableOfType(() -> authorService.findPapersByAuthorId(1000), AuthorIdNotFoundException.class);
+    void testFindPapersByAuthorIdThrowsOuterException() {
+        assertThrows(AuthorIdNotFoundException.class, () -> underTest.findPapersByAuthorId(1));
     }
 }

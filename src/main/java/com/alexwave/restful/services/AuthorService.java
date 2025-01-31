@@ -4,11 +4,12 @@ import com.alexwave.restful.dto.AuthorDTO;
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.entities.Paper;
-import com.alexwave.restful.mapper.AuthorMapper;
-import com.alexwave.restful.mapper.PaperMapper;
+import com.alexwave.restful.mappers.AuthorMapper;
+import com.alexwave.restful.mappers.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
 import com.alexwave.restful.util.my_exceptions.AuthorListIsEmptyException;
+import com.alexwave.restful.util.my_exceptions.PaperListIsEmptyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,7 +84,11 @@ public class AuthorService {
         Optional<Author> optionalAuthor = authorsRepository.findById(id);
         if (optionalAuthor.isPresent()) {
             List<Paper> papers = optionalAuthor.get().getPapers();
-            return paperMapper.papersToPaperDTOs(papers);
+            if (papers.isEmpty()) {
+                throw new PaperListIsEmptyException();
+            } else {
+                return paperMapper.papersToPaperDTOs(papers);
+            }
         } else {
             throw new AuthorIdNotFoundException();
         }

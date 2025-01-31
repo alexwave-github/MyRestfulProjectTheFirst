@@ -3,7 +3,7 @@ package com.alexwave.restful.services;
 import com.alexwave.restful.dto.PaperDTO;
 import com.alexwave.restful.entities.Author;
 import com.alexwave.restful.entities.Paper;
-import com.alexwave.restful.mapper.PaperMapper;
+import com.alexwave.restful.mappers.PaperMapper;
 import com.alexwave.restful.repositories.AuthorRepository;
 import com.alexwave.restful.repositories.PaperRepository;
 import com.alexwave.restful.util.my_exceptions.AuthorIdNotFoundException;
