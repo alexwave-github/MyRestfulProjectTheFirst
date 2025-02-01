@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: "${POSTGRES_VER}"
+    restart: "no"
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    networks:
+      - app-network
+  MyRestfulProjectTheFirst:
+    image: my-restful-project-the-first:latest
+    build: .
+    restart: "no"
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_HOST: postgres:${POSTGRES_PORT}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+volumes:
+  postgres_data:
+networks:
+    app-network:
+      driver: bridge
